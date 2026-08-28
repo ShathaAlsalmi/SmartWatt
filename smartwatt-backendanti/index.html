@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SmartWatt - Dashboard</title>
+    
+    <!-- Tailwind & Plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=JetBrains+Mono:wght@500;700&family=Hanken+Grotesk:wght@400;500&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind Config from old code -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#00e5ff",
+                        "on-primary-fixed-variant": "#004f58",
+                        "on-error": "#690005",
+                        "secondary-container": "#c3f400",
+                        "on-tertiary-fixed": "#23005c",
+                        "background": "#0d141e",
+                        "surface-variant": "#2e3540",
+                        "surface-dim": "#0d141e",
+                        "inverse-on-surface": "#2a313c",
+                        "outline": "#849396",
+                        "surface": "#0d141e",
+                        "on-background": "#dce2f2",
+                        "on-secondary-container": "#556d00",
+                        "on-primary": "#00363d",
+                        "inverse-primary": "#006875",
+                        "on-primary-fixed": "#001f24",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#dce2f2",
+                        "on-surface-variant": "#bac9cc",
+                        "outline-variant": "#3b494c",
+                        "on-secondary": "#283500",
+                        "secondary": "#ffffff",
+                        "surface-container-high": "#242a35",
+                        "surface-tint": "#00daf3",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#abd600",
+                        "on-tertiary-container": "#6834d1",
+                        "primary": "#c3f5ff",
+                        "tertiary-fixed-dim": "#d0bcff",
+                        "surface-container-lowest": "#080e19",
+                        "primary-fixed": "#9cf0ff",
+                        "surface-bright": "#333945",
+                        "tertiary-container": "#d9c8ff",
+                        "surface-container": "#19202b",
+                        "on-tertiary-fixed-variant": "#5516be",
+                        "on-surface": "#dce2f2",
+                        "surface-container-low": "#151c26",
+                        "secondary-fixed": "#c3f400",
+                        "primary-fixed-dim": "#00daf3",
+                        "surface-container-highest": "#2e3540",
+                        "on-primary-container": "#00626e",
+                        "tertiary": "#f2e9ff",
+                        "tertiary-fixed": "#e9ddff",
+                        "on-secondary-fixed-variant": "#3c4d00",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#3c0091",
+                        "on-secondary-fixed": "#161e00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "sm": "12px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "xs": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Sora"],
+                        "data-label": ["JetBrains Mono"],
+                        "headline-xl": ["Sora"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Sora"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "data-display": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "data-label": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "data-display": ["22px", { "lineHeight": "28px", "letterSpacing": "0.05em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <style>
+        body { background-color: #050B15; color: #dce2f2; font-family: 'Hanken Grotesk', sans-serif; }
+        .glass-card { background: rgba(12, 20, 37, 0.8); border: 1px solid #1E293B; backdrop-filter: blur(12px); }
+        .glow-active { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.5); }
+        .glow-text { text-shadow: 0 0 8px rgba(0, 229, 255, 0.6); }
+        .cyan-gradient { background: linear-gradient(135deg, #00e5ff 0%, #006875 100%); }
+        .lime-border { border-color: #c3f400; }
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        
+        /* Tab Transitions */
+        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Inputs */
+        input[type="date"], input[type="month"] {
+            color-scheme: dark;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex relative overflow-x-hidden">
+    <!-- Background Effects -->
+    <div class="fixed inset-0 grid-bg z-0 pointer-events-none"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none" style="background: radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.1) 0%, transparent 70%);"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="absolute inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500 px-lg bg-[#050B15]">
+        <div class="fixed inset-0 grid-bg z-0 pointer-events-none"></div>
+        <div class="fixed inset-0 z-0 pointer-events-none" style="background: radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.1) 0%, transparent 70%);"></div>
+        
+        <div class="glass-card rounded-2xl p-xl flex flex-col gap-lg w-full max-w-md relative z-10 glow-active">
+            <div class="text-center">
+                <h1 class="font-headline-xl text-headline-xl tracking-tighter text-primary-container glow-text flex items-center justify-center gap-2 mb-2">
+                    SMARTWATT <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                </h1>
+                <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-widest text-[10px]">Energy Intelligence</span>
+            </div>
+            
+            <form id="login-form" class="flex flex-col gap-md" onsubmit="event.preventDefault(); continueAsDemo();">
+                <div class="flex flex-col gap-2">
+                    <label class="font-data-label text-data-label text-on-surface-variant uppercase" for="email">Email</label>
+                    <input type="email" id="email" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" placeholder="user@example.com" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-data-label text-data-label text-on-surface-variant uppercase" for="password">Password</label>
+                    <input type="password" id="password" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="w-full mt-4 px-8 py-3 rounded-lg cyan-gradient text-background font-headline-md text-[16px] tracking-wider font-bold shadow-[0_0_12px_rgba(0,229,255,0.3)] hover:opacity-90 transition-opacity">
+                    Login
+                </button>
+            </form>
+            
+            <div class="flex flex-col items-center gap-4 mt-2 border-t border-outline-variant/30 pt-6">
+                <button onclick="continueAsDemo()" type="button" class="w-full px-8 py-3 rounded-lg border border-primary-container text-primary-container font-headline-md text-[16px] tracking-wider font-bold hover:bg-primary-container/10 transition-colors">
+                    Continue as a demo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard-screen" class="hidden opacity-0 flex-1 w-full flex-col relative transition-opacity duration-500 z-10 md:flex-row">
+        <!-- SIDE NAVIGATION (Desktop) -->
+        <nav class="hidden md:flex fixed top-0 left-0 h-full w-20 bg-surface-container-lowest/80 backdrop-blur-xl border-r border-outline-variant/20 flex-col items-center py-xl gap-lg z-50">
+            <a class="text-primary-container bg-surface-variant/30 p-3 rounded-xl border border-primary-container/30 glow-active transition-all" href="#" onclick="switchTab('daily')">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+            </a>
+            <a class="text-outline hover:text-primary p-3 rounded-xl hover:bg-surface-variant/50 transition-all" href="#" onclick="switchTab('monthly')">
+                <span class="material-symbols-outlined">calendar_month</span>
+            </a>
+            <a class="text-outline hover:text-primary p-3 rounded-xl hover:bg-surface-variant/50 transition-all" href="#" onclick="switchTab('analytics')">
+                <span class="material-symbols-outlined">monitoring</span>
+            </a>
+        </nav>
+        
+        <!-- BOTTOM NAVIGATION (Mobile) -->
+        <nav class="bg-surface-container-low/90 backdrop-blur-xl border-t border-outline-variant/20 shadow-lg fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-xxl px-lg pb-safe md:hidden">
+            <a class="flex flex-col items-center justify-center text-primary-container transition-all duration-200 p-2 nav-mobile" href="#" onclick="switchTab('daily', this)">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+                <span class="font-label-sm text-label-sm mt-1">Daily</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-all duration-200 p-2 nav-mobile" href="#" onclick="switchTab('monthly', this)">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span class="font-label-sm text-label-sm mt-1">Monthly</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-all duration-200 p-2 nav-mobile" href="#" onclick="switchTab('analytics', this)">
+                <span class="material-symbols-outlined">monitoring</span>
+                <span class="font-label-sm text-label-sm mt-1">Analytics</span>
+            </a>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 relative z-10 w-full md:ml-20 px-lg py-lg max-w-7xl mx-auto flex flex-col gap-lg pb-32">
+            <!-- HEADER -->
+            <header class="flex justify-between items-center w-full mb-8">
+                <div class="flex flex-col">
+                    <h1 class="font-headline-xl text-headline-xl tracking-tighter text-primary-container glow-text flex items-center gap-2">
+                        SMARTWATT <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    </h1>
+                    <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-widest text-[10px]">Forecast & Analytics</span>
+                </div>
+                <button class="hover:opacity-80 transition-opacity">
+                    <img alt="User avatar portrait" class="w-10 h-10 rounded-full border border-outline-variant/50" src="https://ui-avatars.com/api/?name=User&background=00e5ff&color=0d141e"/>
+                </button>
+            </header>
+
+            <!-- SECTION 1: DAILY FORECAST -->
+            <section id="daily-tab" class="tab-content active w-full">
+                <div class="flex flex-col gap-lg">
+                    <div class="glass-card rounded-xl p-md md:p-lg flex flex-col md:flex-row gap-md items-end">
+                        <div class="flex-1 w-full">
+                            <label class="font-data-label text-data-label text-on-surface-variant uppercase block mb-2" for="daily-date">Select Target Date</label>
+                            <input type="date" id="daily-date" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all">
+                        </div>
+                        <button onclick="predictDaily()" id="daily-btn" class="w-full md:w-auto px-8 py-3 rounded-lg cyan-gradient text-background font-headline-md text-[16px] tracking-wider font-bold shadow-[0_0_12px_rgba(0,229,255,0.3)] hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+                            <span class="material-symbols-outlined">auto_awesome</span> Predict
+                        </button>
+                    </div>
+                    
+                    <div id="daily-report-content" class="flex flex-col gap-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg" id="daily-results" style="display: none;">
+                            <div class="glass-card rounded-xl p-lg flex flex-col gap-sm glow-active">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="material-symbols-outlined text-primary-container">electric_bolt</span>
+                                    <span class="font-data-label text-data-label text-on-surface-variant uppercase">Predicted Load</span>
+                                </div>
+                                <div class="font-data-display text-headline-xl text-primary-container glow-text flex items-baseline gap-2">
+                                    <span id="daily-load">0.00</span> <span class="font-data-label text-sm text-on-surface-variant">kWh</span>
+                                </div>
+                            </div>
+                            <div class="glass-card rounded-xl p-lg flex flex-col gap-sm lime-border">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="material-symbols-outlined text-secondary-container">payments</span>
+                                    <span class="font-data-label text-data-label text-on-surface-variant uppercase">Estimated Cost</span>
+                                </div>
+                                <div class="font-data-display text-headline-xl text-secondary-container flex items-baseline gap-2">
+                                    <span id="daily-cost">0.00</span> <span class="font-data-label text-sm text-on-surface-variant">SAR</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recommendations -->
+                        <div id="daily-recommendations" class="hidden flex-col gap-md"></div>
+                    </div>
+                    
+                    <button id="daily-pdf-btn" onclick="downloadPDF('daily-report-content', 'Daily')" class="hidden w-full md:w-auto px-6 py-3 mt-2 rounded-lg border border-primary-container text-primary-container font-headline-md text-[14px] hover:bg-primary-container/10 transition-colors self-start items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">download</span> Download Plan as PDF
+                    </button>
+                    
+                    <!-- Error msg display -->
+                    <div id="daily-error" class="hidden text-error bg-error-container/20 border border-error/50 p-4 rounded-lg font-body-md mt-4"></div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: MONTHLY FORECAST -->
+            <section id="monthly-tab" class="tab-content w-full">
+                <div class="flex flex-col gap-lg">
+                    <div class="glass-card rounded-xl p-md md:p-lg flex flex-col md:flex-row gap-md items-end">
+                        <div class="flex-1 w-full">
+                            <label class="font-data-label text-data-label text-on-surface-variant uppercase block mb-2" for="monthly-date">Select Target Month</label>
+                            <input type="month" id="monthly-date" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-on-surface focus:outline-none focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all">
+                        </div>
+                        <button onclick="predictMonthly()" id="monthly-btn" class="w-full md:w-auto px-8 py-3 rounded-lg bg-secondary-container text-on-secondary-container font-headline-md text-[16px] tracking-wider font-bold shadow-[0_0_12px_rgba(195,244,0,0.3)] hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+                            <span class="material-symbols-outlined">auto_awesome</span> Predict
+                        </button>
+                    </div>
+                    
+                    <div id="monthly-report-content" class="flex flex-col gap-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg" id="monthly-results" style="display: none;">
+                            <div class="glass-card rounded-xl p-lg flex flex-col gap-sm border-secondary-container/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="material-symbols-outlined text-primary-container">electric_bolt</span>
+                                    <span class="font-data-label text-data-label text-on-surface-variant uppercase">Predicted Load</span>
+                                </div>
+                                <div class="font-data-display text-headline-xl text-primary-container glow-text flex items-baseline gap-2">
+                                    <span id="monthly-load">0.00</span> <span class="font-data-label text-sm text-on-surface-variant">kWh</span>
+                                </div>
+                            </div>
+                            <div class="glass-card rounded-xl p-lg flex flex-col gap-sm lime-border" style="box-shadow: 0 0 12px rgba(195,244,0,0.2);">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="material-symbols-outlined text-secondary-container">payments</span>
+                                    <span class="font-data-label text-data-label text-on-surface-variant uppercase">Estimated Cost</span>
+                                </div>
+                                <div class="font-data-display text-headline-xl text-secondary-container flex items-baseline gap-2">
+                                    <span id="monthly-cost">0.00</span> <span class="font-data-label text-sm text-on-surface-variant">SAR</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recommendations -->
+                        <div id="monthly-recommendations" class="hidden flex-col gap-md"></div>
+                    </div>
+                    
+                    <button id="monthly-pdf-btn" onclick="downloadPDF('monthly-report-content', 'Monthly')" class="hidden w-full md:w-auto px-6 py-3 mt-2 rounded-lg border border-secondary-container text-secondary-container font-headline-md text-[14px] hover:bg-secondary-container/10 transition-colors self-start items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">download</span> Download Plan as PDF
+                    </button>
+                    
+                    <div id="monthly-error" class="hidden text-error bg-error-container/20 border border-error/50 p-4 rounded-lg font-body-md mt-4"></div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: ANALYTICS & CHARTS -->
+            <section id="analytics-tab" class="tab-content w-full">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+                    <div class="glass-card rounded-xl p-md flex flex-col gap-md">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-headline-md text-on-surface">Consumption Trends</h3>
+                            <span class="bg-primary-container/10 text-primary-container px-3 py-1 rounded-full font-data-label text-[10px] uppercase border border-primary-container/30">Recent</span>
+                        </div>
+                        <div class="w-full h-[300px] relative">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-md flex flex-col gap-md">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-headline-md text-on-surface">Energy by Device</h3>
+                            <span class="bg-secondary-container/10 text-secondary-container px-3 py-1 rounded-full font-data-label text-[10px] uppercase border border-secondary-container/30">Monthly</span>
+                        </div>
+                        <div class="w-full h-[300px] relative">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Javascript -->
+    <script>
+        // --- Login Logic ---
+        function continueAsDemo() {
+            const loginScreen = document.getElementById('login-screen');
+            const dashboardScreen = document.getElementById('dashboard-screen');
+            
+            loginScreen.style.opacity = '0';
+            setTimeout(() => {
+                loginScreen.style.display = 'none';
+                dashboardScreen.classList.remove('hidden');
+                // Force reflow for smooth transition
+                void dashboardScreen.offsetWidth;
+                dashboardScreen.classList.remove('opacity-0');
+            }, 500);
+        }
+    
+        // --- UI Logic: Tab Switching ---
+        function switchTab(tabId, mobileElement = null) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show selected tab
+            document.getElementById(tabId + '-tab').classList.add('active');
+
+            // Update Desktop Nav
+            const desktopNavs = document.querySelectorAll('.hidden.md\\:flex > a');
+            desktopNavs.forEach(nav => {
+                nav.className = "text-outline hover:text-primary p-3 rounded-xl hover:bg-surface-variant/50 transition-all";
+                nav.innerHTML = nav.innerHTML.replace(`style="font-variation-settings: 'FILL' 1;"`, '');
+            });
+            
+            // Apply active styles to the matching desktop nav
+            let activeDesktopNav;
+            if(tabId === 'daily') activeDesktopNav = desktopNavs[0];
+            if(tabId === 'monthly') activeDesktopNav = desktopNavs[1];
+            if(tabId === 'analytics') {
+                activeDesktopNav = desktopNavs[2];
+                // Render charts if switching to analytics
+                setTimeout(initCharts, 100); 
+            }
+            
+            activeDesktopNav.className = "text-primary-container bg-surface-variant/30 p-3 rounded-xl border border-primary-container/30 glow-active transition-all";
+            activeDesktopNav.innerHTML = activeDesktopNav.innerHTML.replace('<span', `<span style="font-variation-settings: 'FILL' 1;"`);
+
+            // Update Mobile Nav
+            if(mobileElement) {
+                document.querySelectorAll('.nav-mobile').forEach(nav => {
+                    nav.classList.remove('text-primary-container');
+                    nav.classList.add('text-outline');
+                    nav.querySelector('.material-symbols-outlined').removeAttribute('style');
+                });
+                mobileElement.classList.add('text-primary-container');
+                mobileElement.classList.remove('text-outline');
+                mobileElement.querySelector('.material-symbols-outlined').setAttribute('style', "font-variation-settings: 'FILL' 1;");
+            } else {
+                // If clicked from desktop, sync mobile just in case
+                const mobileNavs = document.querySelectorAll('.nav-mobile');
+                mobileNavs.forEach(nav => {
+                    nav.classList.remove('text-primary-container');
+                    nav.classList.add('text-outline');
+                    nav.querySelector('.material-symbols-outlined').removeAttribute('style');
+                });
+                let activeMobileNav;
+                if(tabId === 'daily') activeMobileNav = mobileNavs[0];
+                if(tabId === 'monthly') activeMobileNav = mobileNavs[1];
+                if(tabId === 'analytics') activeMobileNav = mobileNavs[2];
+                
+                activeMobileNav.classList.add('text-primary-container');
+                activeMobileNav.classList.remove('text-outline');
+                activeMobileNav.querySelector('.material-symbols-outlined').setAttribute('style', "font-variation-settings: 'FILL' 1;");
+            }
+        }
+
+        // --- Recommendation & Chart Update Logic ---
+        let latestLoad = null;
+        let latestIsMonthly = false;
+
+        function displayRecommendations(load, isMonthly) {
+            const threshold = isMonthly ? 3000 : 100;
+            const isHigh = load > threshold;
+            const prefix = isMonthly ? 'monthly' : 'daily';
+            
+            const recContainer = document.getElementById(`${prefix}-recommendations`);
+            const pdfBtn = document.getElementById(`${prefix}-pdf-btn`);
+            
+            let content = '';
+            
+            if (isHigh) {
+                content = `
+                    <div class="glass-card rounded-xl p-md border-error/50 flex flex-col gap-sm" style="box-shadow: 0 0 12px rgba(255, 180, 171, 0.2);">
+                        <div class="flex items-center gap-2 text-error">
+                            <span class="material-symbols-outlined">warning</span>
+                            <h3 class="font-headline-md">High Usage Warning</h3>
+                        </div>
+                        <p class="text-on-surface-variant mb-2">Your predicted energy usage is above the recommended threshold. Here are AI-generated tips to reduce consumption:</p>
+                        <ul class="list-disc list-inside text-on-surface flex flex-col gap-2 font-body-md">
+                            <li>Increase your AC thermostat by 1-2 degrees during peak hours.</li>
+                            <li>Unplug idle electronics or use smart power strips.</li>
+                            <li>Shift heavy appliance usage to off-peak hours.</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                content = `
+                    <div class="glass-card rounded-xl p-md border-secondary-container/50 flex flex-col gap-sm" style="box-shadow: 0 0 12px rgba(195, 244, 0, 0.2);">
+                        <div class="flex items-center gap-2 text-secondary-container">
+                            <span class="material-symbols-outlined">verified</span>
+                            <h3 class="font-headline-md">Great Job!</h3>
+                        </div>
+                        <p class="text-on-surface-variant mb-2">Your predicted energy usage is well within normal limits. Keep up the good work! Here are some maintenance tips:</p>
+                        <ul class="list-disc list-inside text-on-surface flex flex-col gap-2 font-body-md">
+                            <li>Clean or replace HVAC filters regularly to maintain efficiency.</li>
+                            <li>Check weatherstripping on doors and windows.</li>
+                            <li>Consider upgrading older appliances to energy-efficient models.</li>
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            recContainer.innerHTML = content;
+            recContainer.classList.remove('hidden');
+            recContainer.classList.add('flex');
+            pdfBtn.classList.remove('hidden');
+            pdfBtn.classList.add('flex');
+        }
+
+        function updateChartsWithPrediction(load, isMonthly) {
+            latestLoad = load;
+            latestIsMonthly = isMonthly;
+            
+            if(chartsInitialized) {
+                const chart = Chart.getChart('lineChart');
+                if (chart && latestLoad !== null) {
+                    const base = latestIsMonthly ? (latestLoad / 30) : latestLoad;
+                    const newData = Array.from({length: 6}, () => base * (0.7 + Math.random() * 0.6));
+                    newData.push(base); // Final point reflects prediction
+                    
+                    chart.data.datasets[0].data = newData;
+                    chart.update();
+                }
+            }
+        }
+        
+        function downloadPDF(elementId, prefix) {
+            const element = document.getElementById(elementId);
+            
+            const opt = {
+                margin:       0.5,
+                filename:     `SmartWatt_${prefix}_Forecast.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#050B15' },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // --- API Integration: Fetch ---
+        async function predictDaily() {
+            const dateInput = document.getElementById('daily-date').value;
+            const errorDiv = document.getElementById('daily-error');
+            const resultsDiv = document.getElementById('daily-results');
+            const btn = document.getElementById('daily-btn');
+            
+            errorDiv.classList.add('hidden');
+            resultsDiv.style.display = 'none';
+            document.getElementById('daily-recommendations').classList.add('hidden');
+            document.getElementById('daily-pdf-btn').classList.add('hidden');
+
+            if(!dateInput) {
+                errorDiv.textContent = 'Please select a date first.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin" style="animation: spin 1s linear infinite;">refresh</span> Predicting...`;
+            btn.disabled = true;
+            btn.classList.add('opacity-70');
+            
+            if (!document.getElementById('spin-style')) {
+                const style = document.createElement('style');
+                style.id = 'spin-style';
+                style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
+                document.head.appendChild(style);
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/v1/predict/daily', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target_date: dateInput })
+                });
+
+                if(!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Animate Numbers
+                animateValue("daily-load", 0, data.predicted_load_kwh, 1000, 2);
+                animateValue("daily-cost", 0, data.estimated_cost_sar, 1000, 2);
+                
+                resultsDiv.style.display = 'grid';
+                
+                displayRecommendations(data.predicted_load_kwh, false);
+                updateChartsWithPrediction(data.predicted_load_kwh, false);
+
+            } catch (error) {
+                console.error("Prediction Error:", error);
+                errorDiv.textContent = 'Failed to fetch prediction. Ensure backend is running. ' + error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = originalBtnHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70');
+            }
+        }
+
+        async function predictMonthly() {
+            const dateInput = document.getElementById('monthly-date').value;
+            const errorDiv = document.getElementById('monthly-error');
+            const resultsDiv = document.getElementById('monthly-results');
+            const btn = document.getElementById('monthly-btn');
+            
+            errorDiv.classList.add('hidden');
+            resultsDiv.style.display = 'none';
+            document.getElementById('monthly-recommendations').classList.add('hidden');
+            document.getElementById('monthly-pdf-btn').classList.add('hidden');
+
+            if(!dateInput) {
+                errorDiv.textContent = 'Please select a month first.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin" style="animation: spin 1s linear infinite;">refresh</span> Predicting...`;
+            btn.disabled = true;
+            btn.classList.add('opacity-70');
+            
+            if (!document.getElementById('spin-style')) {
+                const style = document.createElement('style');
+                style.id = 'spin-style';
+                style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
+                document.head.appendChild(style);
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/v1/predict/monthly', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target_month: dateInput })
+                });
+
+                if(!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                animateValue("monthly-load", 0, data.predicted_load_kwh, 1000, 1);
+                animateValue("monthly-cost", 0, data.estimated_cost_sar, 1000, 2);
+                
+                resultsDiv.style.display = 'grid';
+                
+                displayRecommendations(data.predicted_load_kwh, true);
+                updateChartsWithPrediction(data.predicted_load_kwh, true);
+
+            } catch (error) {
+                console.error("Prediction Error:", error);
+                errorDiv.textContent = 'Failed to fetch prediction. Ensure backend is running. ' + error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = originalBtnHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70');
+            }
+        }
+
+        // Utility: Animate numbers
+        function animateValue(id, start, end, duration, decimals = 2) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const currentVal = (progress * (end - start) + start).toFixed(decimals);
+                obj.innerHTML = currentVal;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = Number(end).toFixed(decimals);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // --- Chart.js Logic ---
+        let chartsInitialized = false;
+        function initCharts() {
+            if(chartsInitialized) return;
+            chartsInitialized = true;
+
+            // Global Chart defaults for dark theme
+            Chart.defaults.color = '#849396';
+            Chart.defaults.font.family = "'JetBrains Mono', monospace";
+            Chart.defaults.scale.grid.color = 'rgba(132, 147, 150, 0.1)';
+
+            // 1. Line Chart (Consumption Trends)
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            
+            // Gradient for line chart
+            const gradientLine = ctxLine.createLinearGradient(0, 0, 0, 300);
+            gradientLine.addColorStop(0, 'rgba(0, 229, 255, 0.4)');
+            gradientLine.addColorStop(1, 'rgba(0, 229, 255, 0.0)');
+
+            let initialData = [12.5, 14.2, 11.8, 15.1, 16.5, 18.2, 17.0];
+            if (latestLoad !== null) {
+                const base = latestIsMonthly ? (latestLoad / 30) : latestLoad;
+                initialData = Array.from({length: 6}, () => base * (0.7 + Math.random() * 0.6));
+                initialData.push(base); // Final point
+            }
+
+            new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+                    datasets: [{
+                        label: 'Energy (kWh)',
+                        data: initialData,
+                        borderColor: '#00e5ff',
+                        backgroundColor: gradientLine,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#0d141e',
+                        pointBorderColor: '#00e5ff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(12, 20, 37, 0.9)',
+                            titleColor: '#00e5ff',
+                            bodyColor: '#dce2f2',
+                            borderColor: '#1E293B',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, border: { display: false } },
+                        x: { border: { display: false }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // 2. Bar Chart (Energy by Device)
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['HVAC', 'Fridge', 'Lighting', 'TV', 'Others'],
+                    datasets: [{
+                        label: 'Consumption (%)',
+                        data: [45, 20, 15, 10, 10],
+                        backgroundColor: [
+                            '#00e5ff', // primary
+                            '#c3f400', // secondary
+                            '#006875', // inverse-primary
+                            '#849396', // outline
+                            '#2e3540'  // surface-variant
+                        ],
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(12, 20, 37, 0.9)',
+                            titleColor: '#c3f400',
+                            bodyColor: '#dce2f2',
+                            borderColor: '#1E293B',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 60,
+                            border: { display: false },
+                            ticks: { callback: function(value) { return value + "%" } }
+                        },
+                        x: { border: { display: false }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+        
+        // Set today's date as default for daily datepicker
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('daily-date').value = today;
+        
+        // Set current month as default for monthly datepicker
+        const currentMonth = today.substring(0, 7);
+        document.getElementById('monthly-date').value = currentMonth;
+    </script>
+</body>
+</html>
