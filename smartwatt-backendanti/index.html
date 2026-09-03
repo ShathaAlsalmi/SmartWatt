@@ -536,7 +536,8 @@
             }
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/v1/predict/daily', {
+                // Updated Render URL
+                const response = await fetch('https://smartwatt-u42p.onrender.com/api/v1/predict/daily', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ target_date: dateInput })
@@ -598,7 +599,8 @@
             }
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/v1/predict/monthly', {
+                // Updated Render URL
+                const response = await fetch('https://smartwatt-u42p.onrender.com/api/v1/predict/monthly', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ target_month: dateInput })
